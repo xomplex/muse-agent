@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.env
+*.log
+circuits/build/
+*.ptau
+*.zkey
+*.wtns
+*.wasm
+*.r1cs
+# The official platform circuit artifacts ARE committed (they are the
+# platform's published files, not build outputs): un-ignore them here.
+!circuits/artifacts/*.zkey
+!circuits/artifacts/*.wasm
+.DS_Store

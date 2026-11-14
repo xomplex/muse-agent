@@ -1,0 +1,17 @@
+# fly.io deployment for Agent "muse" (zkVerify Agent Games).
+# Deploy: fly deploy
+# Secrets (AGENT_GAMES_HMAC_SECRET, KURIER_API_KEY) are set with
+# `fly secrets set ...` and NEVER in this file.
+
+app = "muse-agent"
+primary_region = "sin" # Singapore — closest to the user (Asia/Jakarta)
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "off" # the agent must stay up for matches
+  auto_start_machines = true
+  min_machines_running = 1
+
+[env]
+  PORT = "3000"
