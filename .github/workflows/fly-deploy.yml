@@ -1,0 +1,38 @@
+# Deploy Agent Games server ("agen muse") to Fly.io.
+# Trigger: every push to main (incl. this workflow file itself) + manual run.
+# Requires repo secret FLY_API_TOKEN (deploy token, set by the repo owner in
+# GitHub Settings > Secrets and variables > Actions).
+# App + HMAC/Kurier secrets already exist on Fly.io (app "muse-agent",
+# region sin); this job only builds + deploys.
+
+name: Deploy to Fly.io
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy muse-agent
+    runs-on: ubuntu-latest
+    concurrency: deploy-group
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Verify public endpoint
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if curl -fsS https://muse-agent.fly.dev/health; then
+              echo "health OK"
+              exit 0
+            fi
+            echo "health not ready yet (try $i/6), waiting 10s..."
+            sleep 10
+          done
+          echo "health check failed after 6 tries"
+          exit 1
